@@ -19,6 +19,9 @@
       .r{
         text-align: right;
       }
+      #label_radio1{
+        margin-right: 30px;
+      }
 
     </style>
   </head>
@@ -58,22 +61,40 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="/" enctype="multipart/form-data" method="POST">
+      <form id="price_form" action="/" enctype="multipart/form-data" method="POST">
       <div class="modal-body">
 
+      <input id="position_id" type="hidden" name="title" value="">
+        
       <div class="form-group">
-            <label for="recipient-name" class="col-form-label">Recipient:</label>
-            <input type="text" class="form-control" id="recipient-name">
-          </div>
-          <div class="form-group">
-            <label for="message-text" class="col-form-label">Message:</label>
-            <textarea class="form-control" id="message-text"></textarea>
+            <label for="price">Цена:</label>
+            <input type="number" min="0.00" step="0.01" class="form-control" id="price" name="price" value="">  
           </div>
 
-        ...
+          <div class="form-group">
+            <label for="from_date">Начало действия цены:</label>
+            <input type="date" class="form-control" id="from_date" name="from_date" max="2038-01-18" min="<?php echo date("Y-m-d");?>">
+          </div>
+
+          <div class="form-group">
+            <label for="to_date">Последний день действия цены:</label>
+            <input type="date" class="form-control" id="to_date" name="to_date" min="<?php echo date("Y-m-d");?>" max="2038-01-18">
+          </div>
+          <div>
+          <label for="type">Тип ценообразования: </label>
+          </div>
+          
+            <div class="form-check-inline">
+              <label class="form-check-label" for="radio1" id="label_radio1">
+                <input type="radio" class="form-check-input" id="radio1" name="type_price" value="1" checked>Приоритет последней стоимости
+              </label>
+              <label class="form-check-label" for="radio1">
+                <input type="radio" class="form-check-input" id="radio1" name="type_price" value="2" >Приоритет наименьшего временного периода
+              </label>
+            </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success btn-lg btn-block" data-dismiss="modal" onclick="change_price(this);">Внести изменения</button>
+        <button id="ch_btn" type="button" class="btn btn-success btn-lg btn-block" data-dismiss="modal" onclick="change_price();">Внести изменения</button>
       </div>
       </form>
     </div>
@@ -89,19 +110,55 @@
 
   </div>
   <script>
+
+      function ajax_send_info(data){
+        var request = new XMLHttpRequest();
+        request.open('POST', '/', true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.send(data);
+        alert("Данные отправлены на сервер!");
+      }
+  // Передача параметров товара в модальное окно
     function add_head(){
       $('#exampleModal').on('show.bs.modal', function (event) {
        var button = $(event.relatedTarget);
        var recipient = button.data('id');
-       var modal = $(this)
-  // modal.find('.modal-title').text('New message to ' + recipient)
-  modal.find('.modal-body input').val(recipient)
-})
+       var modal = $(this);
+      modal.find('.modal-body #position_id').val(recipient);
+      });
     }
 
-    function change_price(id){
-      console.log(id)
-      alert(id.id);
+    function change_price(e){
+      // Проверить, что поле to_date должно быть больше или равно полю from_date
+      var ch_btn = document.querySelector('#ch_btn');
+      var pos_id = document.querySelector('#position_id').value;
+      var price = document.querySelector('#price').value;
+      var from_date = document.querySelector('#from_date').value;
+      var to_date = document.querySelector('#to_date').value;
+      if (to_date != "" && from_date != "" && from_date > to_date){
+        alert ("Некорректный ввод сроков действия стоимости продукции");
+        ch_btn.removeAttribute('data-dismiss');
+      }
+      else{
+        if (!ch_btn.hasAttribute('data-dismiss')){
+          ch_btn.setAttribute('data-dismiss', 'modal')
+        }
+        alert(price);
+        alert(from_date);
+        alert(to_date);
+        var type_price = '';
+        var radio = document.querySelectorAll('#radio1');
+        for(var i = 0; i < radio.length; i++){
+          if(radio[i].checked)
+          type_price = radio[i].value;
+        }
+        ajax_send_info('price=' + price +
+                        '&from_date=' + from_date +
+                        '&to_date=' + to_date +
+                        '&type_price=' + type_price +
+                        '&position_id=' + pos_id);
+
+      }
       
     };
 
