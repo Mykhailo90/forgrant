@@ -116,7 +116,12 @@
         request.open('POST', '/', true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.send(data);
-        alert("Данные отправлены на сервер!");
+        request.onreadystatechange = function (e) {
+         if(request.readyState == 4 && request.status == 200) {
+           var res = request.responseText;
+           alert("Данные отправлены на сервер!");
+         }
+        }
       }
   // Передача параметров товара в модальное окно
     function add_head(){
@@ -143,9 +148,7 @@
         if (!ch_btn.hasAttribute('data-dismiss')){
           ch_btn.setAttribute('data-dismiss', 'modal')
         }
-        alert(price);
-        alert(from_date);
-        alert(to_date);
+        
         var type_price = '';
         var radio = document.querySelectorAll('#radio1');
         for(var i = 0; i < radio.length; i++){

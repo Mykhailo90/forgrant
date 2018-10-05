@@ -8,11 +8,43 @@ use PDO;
 
 class MainModel extends Model
 {
+  public function set_price($prod_id, $from_date, $to_date, $now_date, $price){
+    $link = Registry::getInstance()->getProperty('DB');
+    $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = "INSERT INTO price (id_position, price, from_date, to_date, update_date)
+              VALUES (?, ?, ?, ?, ?);";
+      $result = $link->prepare($sql);
+      $result->execute(array($prod_id, $price, $from_date, $to_date, $now_date));
+  }
+
+  public function update_type_price($prod, $type){
+    $link = Registry::getInstance()->getProperty('DB');
+    $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    $sql = "SELECT count(*) FROM price_condition WHERE id_position = ?";
+    $result = $link->prepare($sql);
+    $result->execute(array($prod));
+    $result = $result->fetchColumn();
+    
+    if($result){
+      $sql = "UPDATE price_condition SET id_condition_search = ?
+            WHERE id_position = ?";
+      $result = $link->prepare($sql);
+      $result->execute(array($type, $prod));
+    }
+    else{
+      $sql = "INSERT INTO price_condition (id_position, id_condition_search)
+              VALUES (?, ?);";
+      $result = $link->prepare($sql);
+      $result->execute(array($prod, $type));
+    }
+  }
+
   public function get_categories()
   {
       $link = Registry::getInstance()->getProperty('DB');
       $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = "SELECT * FROM categories";
+      $sql = "SELECT * FROM categories;";
       $result = $link->prepare($sql);
       $result->execute();
       $res = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -28,67 +60,5 @@ class MainModel extends Model
     $res = $result->fetchAll(PDO::FETCH_ASSOC);
     return $res;
   }
-    // public function get_data($data)
-    // {
-    //   $link = Registry::getInstance()->getProperty('DB');
-    //   $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //   if (isset($data['user_login'])){
-    //     $login = $data['user_login'];
-    //     $sql = "SELECT user_id FROM users_info WHERE name = ?";
-    //     $result = $link->prepare($sql);
-    //     $result->execute(array($login));
-    //     $res = $result->fetch(PDO::FETCH_ASSOC);
-    //     if ($res['user_id'] == ""){
-    //       echo "Пользователя с данным логином не существует!";
-    //       exit();
-    //     }
-    //     else {
-    //       // получаем количество фотографий
-    //       $sql = "SELECT COUNT(*) FROM users_images WHERE user_id = ?";
-    //       $result = $link->prepare($sql);
-    //       $result->execute(array($res['user_id']));
-    //       $total = $result->fetchColumn();
-    //
-    //       if ($total == 0){
-    //         echo "К сожалению данный пользователь еще не опубликовал своих фотографий!";
-    //         exit();
-    //       }
-    //     }
-    //   }
-    //   else{
-    //     $sql = "SELECT COUNT(*) FROM users_images";
-    //     $result = $link->prepare($sql);
-    //     $result->execute();
-    //     $total = $result->fetchColumn();
-    //   }
-    //
-    //   $pagination_list = new Pagination($data['current_page'], $data['per_page'], $total);
-    //
-    //   $link = Registry::getInstance()->getProperty('DB');
-    //   $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //   $start = $pagination_list->getStart();
-    //   if (isset($login)){
-    //     $sql = "SELECT * FROM users_images, users_info WHERE name = ? AND users_images.user_id = users_info.user_id
-    //     ORDER BY img_time DESC LIMIT $pagination_list->perpage OFFSET $start";
-    //     $result = $link->prepare($sql);
-    //     $result->execute(array($login));
-    //   }
-    //   else{
-    //     $sql = "SELECT * FROM users_images ORDER BY img_time DESC LIMIT $pagination_list->perpage OFFSET $start";
-    //     $result = $link->prepare($sql);
-    //     $result->execute();
-    //   }
-    //
-    //
-    //   $res = $result->fetchAll(PDO::FETCH_ASSOC);
-    //   echo '<div class="img_list" data="'. $total .'">';
-    //   // Добавить вывод значка лайков и количество для конкретной фото, добавить значок коментов и их количество для зареганых пользователей
-    //   foreach ($res as $val) {
-    //     echo '<div class="show" onclick="new_window('.$val['img_id'].')"><img width="120" id="'.$val['img_id'].'" data="'.$val['user_id'].'" src="'.$val['img_path'].'"></div>';
-  // }
-  //     echo '</div>';
-  //     echo '<div class="pagin_div">';
-  //     echo $pagination_list;
-  //     echo "</div>";
-  //   }
+   
 }

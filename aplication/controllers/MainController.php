@@ -26,6 +26,31 @@ class MainController extends Controller{
 			$title = 'Forgrant';
       $data['categories'] = $this->model->get_categories();
 
+      if (isset($_POST['position_id'])){
+        //Обновить значение типа объявления цены
+        $prod_id = $_POST['position_id'];
+        $type_id = $_POST['type_price'];
+        $this->model->update_type_price($prod_id, $type_id);
+        //Проверить наличие поля цена, если не пустое, внести
+        //информацию в БД
+        if (isset($_POST['price']) && !empty($_POST['price'])){
+          $price = $_POST['price'];
+          $to_date = "2038-01-18";
+          $from_date = date("Y-m-d");
+          $now_date = date("Y-m-d");
+          if (isset($_POST['to_date']) && !empty($_POST['to_date'])){
+            $to_date = $_POST['to_date'];
+          }
+          if (isset($_POST['from_date']) && !empty($_POST['from_date'])){
+            $to_date = $_POST['to_date'];
+          }
+          $this->model->set_price($prod_id, $from_date, $to_date, $now_date, $price);
+        }
+        
+        debug($_POST);
+        exit();
+      }
+
       if (isset($_POST['category_id']) &&
           !empty($_POST['category_id']) &&
           is_numeric($_POST['category_id']))
@@ -35,21 +60,6 @@ class MainController extends Controller{
           echo $json;
         exit();
       }
-      //   $data['per_page'] = (int) $_POST['per_page'];
-      //   $data['current_page'] = (int) $_POST['current_page'];
-      //   $login = trim($_POST['user_login']);
-      //   $login = stripslashes($login);
-      //   $login = strip_tags($login);
-      //   $login = htmlspecialchars($login);
-      //   $data['user_login'] = $login;
-      //   $data = $this->model->get_data($data);
-      //   exit();
-      // }
-      // else if (isset($_POST['per_page']) && isset($_POST['current_page'])){
-      //   $data['per_page'] = (int) $_POST['per_page'];
-      //   $data['current_page'] = (int) $_POST['current_page'];
-      //   $data = $this->model->get_data($data);
-      //   exit();
       $this->view->render($title, $data);
     }
   }
