@@ -37,17 +37,15 @@ class MainController extends Controller{
           $price = $_POST['price'];
           $to_date = "2038-01-18";
           $from_date = date("Y-m-d");
-          $now_date = date("Y-m-d");
           if (isset($_POST['to_date']) && !empty($_POST['to_date'])){
             $to_date = $_POST['to_date'];
           }
           if (isset($_POST['from_date']) && !empty($_POST['from_date'])){
             $to_date = $_POST['to_date'];
           }
-          $this->model->set_price($prod_id, $from_date, $to_date, $now_date, $price);
+          $this->model->set_price($prod_id, $from_date, $to_date, $price);
         }
-        
-        debug($_POST);
+       
         exit();
       }
 

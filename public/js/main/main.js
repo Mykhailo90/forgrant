@@ -1,98 +1,105 @@
-var current_page = 1;
-var per_page = 2;
 
-var small_screen = 4;
-var medium_screen = 6;
-var full_screen = 8;
-
-function search_users_by_login(){
-  var u_login = document.querySelector('.header_input').value;
-  var real_login = u_login.trim();
-  if (real_login.length > 0 && real_login.length <= 64)
-  {
-    var regexp = /^[а-яА-ЯёЁa-zA-Z0-9_+-.,@<> ()]+$/gmi;
-    if (u_login.search(regexp) >= 0){
-      // Все проверки пройдены - можно делать запрос
-      current_page = 1;
-      search_count_content();
-      ajaxPost('current_page=' + current_page + '&per_page=' + per_page + '&user_login=' + u_login);
-    }
-    else {
-      alert("В качестве Логин возможно использовать\nсимволы: [а-яА-ЯёЁa-zA-Z0-9_+-.,@<> ()]");
-    }
-  } else if (real_login.length == 0){
-    ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-  } else{
-    alert("В поле Логин не могут быть только пробельные символы, длина должна быть не более 64 символов!");
+function ajax_send_info(data){
+  var request = new XMLHttpRequest();
+  request.open('POST', '/', true);
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  request.send(data);
+  request.onreadystatechange = function (e) {
+   if(request.readyState == 4 && request.status == 200) {
+     var res = request.responseText;
+     alert("Данные отправлены на сервер!");
+     window.location.reload();
+   }
   }
 }
+// Передача параметров товара в модальное окно
+function add_head(){
+$('#exampleModal').on('show.bs.modal', function (event) {
+ var button = $(event.relatedTarget);
+ var recipient = button.data('id');
+ var modal = $(this);
+modal.find('.modal-body #position_id').val(recipient);
+});
+}
 
-function new_window(img_id){
-  var is_registr = document.querySelector('.is_reg').getAttribute('id');
-  if (is_registr != 'undef'){
-    var url = "gallery/show/" + img_id;
-    win = window.open(url, '_blank');
-    win.focus();
-  }else {
-    alert("Чтобы просматривать фото и оставлять комментарии необходимо авторизироваться!!!")
+function change_price(e){
+// Проверить, что поле to_date должно быть больше или равно полю from_date
+var ch_btn = document.querySelector('#ch_btn');
+var pos_id = document.querySelector('#position_id').value;
+var price = document.querySelector('#price').value;
+var from_date = document.querySelector('#from_date').value;
+var to_date = document.querySelector('#to_date').value;
+if (to_date != "" && from_date != "" && from_date > to_date){
+  alert ("Некорректный ввод сроков действия стоимости продукции");
+  ch_btn.removeAttribute('data-dismiss');
+}
+else{
+  if (!ch_btn.hasAttribute('data-dismiss')){
+    ch_btn.setAttribute('data-dismiss', 'modal')
   }
-}
-
-function search_count_content(){
-  if (document.documentElement.clientWidth < 500){
-    per_page = small_screen;
-  } else if (document.documentElement.clientWidth < 800) {
-    per_page = medium_screen;
-  } else {
-    per_page = full_screen;
+  
+  var type_price = '';
+  var radio = document.querySelectorAll('#radio1');
+  for(var i = 0; i < radio.length; i++){
+    if(radio[i].checked)
+    type_price = radio[i].value;
   }
+  ajax_send_info('price=' + price +
+                  '&from_date=' + from_date +
+                  '&to_date=' + to_date +
+                  '&type_price=' + type_price +
+                  '&position_id=' + pos_id);
+
 }
 
-function next(){
-  search_count_content();
-  current_page += 1;
-  ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-}
-
-function prev(){
-  search_count_content();
-  current_page -= 1;
-  ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-}
-
-function start(){
-  search_count_content();
-  current_page = 1;
-  ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-}
-
-function finish(){
-  search_count_content();
-  var total = document.querySelector('.img_list').getAttribute('data');
-  current_page = Math.ceil(total/per_page);
-  ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-}
-
-
-
-function ajaxPost(data) {
-    var request = new XMLHttpRequest();
-    request.open('POST', '/', true);
-    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    request.send(data);
-
-    request.onreadystatechange = function () {
-        if(request.readyState == 4 && request.status == 200) {
-          var response = request.responseText;
-          var list = document.querySelector('.main_container');
-          list.innerHTML = response;
-        }
-    }
-  }
-
-window.onload = function() {
-  search_count_content();
-  ajaxPost('current_page=' + current_page + '&per_page=' + per_page);
-  search_btn = document.querySelector('#search_by_login');
-  search_btn.addEventListener("click", search_users_by_login);
 };
+
+
+function get_category_info(data_send) {
+var request = new XMLHttpRequest();
+request.open('POST', '/', true);
+request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+request.send(data_send);
+var data = "";
+request.onreadystatechange = function (e) {
+   if(request.readyState == 4 && request.status == 200) {
+     var res = request.responseText;
+    //  console.log(res);
+    //  alert("GOOD");
+     var show_area = document.querySelector('.show');
+     show_area.innerHTML = '';
+     data = JSON.parse(res);
+     for (var i = 0; i < data.products.length; i++) {
+       var div = document.createElement("div");
+       div.className = "alert alert-primary products";
+       div.innerHTML =  '<table>' +
+                          '<tr>' +
+                            '<td><strong>' + data.products[i]['name_position'] + '<strong></td>' +
+                            '<td>' + data.products[i]['price'] + ' руб</td>' +
+                            '<td>' + data.products[i]['name'] + '</td>' +
+                            '<td class="r"> <div class="btn btn-danger btn-lg product_item" data-toggle="modal" data-target="#exampleModal" data-id="' + data.products[i]['id'] + '">Управлние ценой</div></td>' +
+                          '</tr>' +
+                        '</table>';
+       show_area.appendChild(div);
+     }
+     add_head();
+   };
+ }
+}
+
+window.onload = function(){
+var main_btn = document.querySelector('#main_btn');
+main_btn.onclick = function(){
+  var show_area = document.querySelector('.show');
+  show_area.innerHTML = '';
+}
+
+
+var div_categ = document.querySelectorAll('.categ');
+for (var i = 0; i < div_categ.length; i++) {
+  div_categ[i].onclick = function(e){
+    var category_id = e.target.id;
+    get_category_info('category_id=' + category_id);
+  };
+}
+}
