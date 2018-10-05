@@ -50,21 +50,32 @@
     <!-- ********************************* -->
 
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Управление ценой</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      <form action="/" enctype="multipart/form-data" method="POST">
       <div class="modal-body">
+
+      <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Recipient:</label>
+            <input type="text" class="form-control" id="recipient-name">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Message:</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+
         ...
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-success btn-lg btn-block" data-dismiss="modal" onclick="change_price(this);">Внести изменения</button>
       </div>
+      </form>
     </div>
   </div>
 </div>
@@ -78,6 +89,23 @@
 
   </div>
   <script>
+    function add_head(){
+      $('#exampleModal').on('show.bs.modal', function (event) {
+       var button = $(event.relatedTarget);
+       var recipient = button.data('id');
+       var modal = $(this)
+  // modal.find('.modal-title').text('New message to ' + recipient)
+  modal.find('.modal-body input').val(recipient)
+})
+    }
+
+    function change_price(id){
+      console.log(id)
+      alert(id.id);
+      
+    };
+
+
     function get_category_info(data_send) {
       var request = new XMLHttpRequest();
      request.open('POST', '/', true);
@@ -97,11 +125,12 @@
                                 '<tr>' +
                                   '<td><strong>' + data.products[i]['name_position'] + '<strong></td>' +
                                   '<td>2000 руб</td>' +
-                                  '<td class="r"> <div class="btn btn-danger btn-lg product_item" data-toggle="modal" data-target="#exampleModal" id="' + data.products[i]['id'] + '">Управлние ценой</div></td>' +
+                                  '<td class="r"> <div class="btn btn-danger btn-lg product_item" data-toggle="modal" data-target="#exampleModal" data-id="' + data.products[i]['id'] + '">Управлние ценой</div></td>' +
                                 '</tr>' +
                               '</table>';
              show_area.appendChild(div);
            }
+           add_head();
          };
        }
 }
