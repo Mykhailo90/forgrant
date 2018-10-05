@@ -1,0 +1,5 @@
+You have to uploade all files with .htaccess in work directory and 
+change DB parameters in ./aplications/config/database.php
+
+I write scripts for download DB and all tables, that need to start
+test page in ./aplications/config/setup.php

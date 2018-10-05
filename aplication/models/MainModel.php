@@ -69,11 +69,7 @@ class MainModel extends Model
   public function get_products($categ_id){
     $link = Registry::getInstance()->getProperty('DB');
     $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // Поочередно сделать 2 запроса в зависимости от типа установленной цены
-
-    // Объеденить 2 массива в один
-
-    //
+  
     $now_date = date("Y-m-d H:i:s");
 
     $sql = "SELECT SP.id, SP.name_position, CS.name, P.price
@@ -93,7 +89,6 @@ class MainModel extends Model
     $result->execute(array($categ_id, $now_date));
     $res = $result->fetchAll(PDO::FETCH_ASSOC);
     $part1 = $this->get_unique($res);
-    // debug($part1);
 
 
 
@@ -114,10 +109,10 @@ class MainModel extends Model
     $result->execute(array($categ_id, $now_date));
     $res = $result->fetchAll(PDO::FETCH_ASSOC);
     $part2 = $this->get_unique($res);
-    // debug($part2);
+
      
     $new_res = array_merge($part1, $part2);
-    // debug($new_res);
+   
     return $new_res;
   }
    
