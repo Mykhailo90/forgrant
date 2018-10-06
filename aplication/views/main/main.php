@@ -19,7 +19,45 @@
 
     <div class="show">
     </div>
+  <!-- ************************************* -->
 
+  
+<div class="modal fade" id="chartsModal" tabindex="-1" role="dialog" aria-labelledby="chartsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="chartsModalLabel">График ценообразования</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Выберите период отображения цены:
+        <form id="charts_form">
+          <input id="pos_id" type="hidden" name="title" value="">
+
+          <div class="form-group">
+            <label for="from_date">Начало периода:</label>
+            <input type="date" class="form-control" id="from" name="from_date" max="2038-01-18">
+          </div>
+
+          <div class="form-group">
+            <label for="to_date">Конец периода:</label>
+            <input type="date" class="form-control" id="to" name="to_date" max="2038-01-18">
+          </div>
+
+          <button type="button" class="btn btn-primary" onclick="show_charts();">Показать график</button>
+        </form>
+
+        <div class="show_charts"></div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
     <!-- ********************************* -->

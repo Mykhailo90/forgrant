@@ -8,10 +8,47 @@ use PDO;
 
 class MainModel extends Model
 {
+  public function get_price_for_chart($id, $from, $to){
+    $link = Registry::getInstance()->getProperty('DB');
+    $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    $day = [];
+    $arr1 = [];
+    $arr2 = [];
+    for ($i = $from; $i < $to; $i++){
+      $day[] = $i;
+      $sql = "SELECT P.price FROM price AS P
+              WHERE P.id_position = ? AND
+              ? BETWEEN P.from_date AND P.to_date
+              ORDER BY P.update_date DESC LIMIT 1;";
+              
+       $result = $link->prepare($sql);
+       $result->execute(array($id, $i));
+       $res = $result->fetch(PDO::FETCH_ASSOC);
+       $arr1 [] = $res['price'];
+
+       $sql = "SELECT P.price FROM price AS P
+       WHERE P.id_position = ? AND
+       ? BETWEEN P.from_date AND P.to_date
+       ORDER BY (P.to_date - P.from_date) LIMIT 1;";
+       
+      $result = $link->prepare($sql);
+      $result->execute(array($id, $i));
+      $res = $result->fetch(PDO::FETCH_ASSOC);
+      $arr2 [] = $res['price'];
+    }
+    $info['day'] = $day;
+    $info['arg1'] = $arr1;
+    $info['arg2'] = $arr2;
+    return $info;
+  }
+
   public function set_price($prod_id, $from_date, $to_date, $price){
     $now_date = date("Y-m-d H:i:s");
     $link = Registry::getInstance()->getProperty('DB');
     $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // debug($to_date);
+
     $sql = "INSERT INTO price (id_position, price, from_date, to_date, update_date)
               VALUES (?, ?, ?, ?, ?);";
       $result = $link->prepare($sql);

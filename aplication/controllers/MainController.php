@@ -25,6 +25,19 @@ class MainController extends Controller{
 			$title = 'Forgrant';
       $data['categories'] = $this->model->get_categories();
 
+      if (isset($_POST['chart']) && $_POST['chart'] == 1){
+        $id = $_POST['id'];
+        $from = $_POST['from'];
+        $to = $_POST['to'];
+        if ($id && $from && $to){
+          $data['products'] = $this->model->get_price_for_chart($id, $from, $to);
+          $json = json_encode($data['products']);
+            echo $json;
+          exit();
+        }
+        
+      }
+
       if (isset($_POST['position_id'])){
         //Update value of type
         $prod_id = $_POST['position_id'];
@@ -33,13 +46,14 @@ class MainController extends Controller{
         //Check price for empy and add info in DB
         if (isset($_POST['price']) && !empty($_POST['price'])){
           $price = $_POST['price'];
-          $to_date = "2038-01-18";
+          $to_date = "2038-01-17";
           $from_date = date("Y-m-d");
           if (isset($_POST['to_date']) && !empty($_POST['to_date'])){
             $to_date = $_POST['to_date'];
+           
           }
           if (isset($_POST['from_date']) && !empty($_POST['from_date'])){
-            $to_date = $_POST['to_date'];
+            $from_date = $_POST['from_date'];
           }
           $this->model->set_price($prod_id, $from_date, $to_date, $price);
         }

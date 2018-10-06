@@ -16,4 +16,6 @@ table, tr{
 #label_radio1{
   margin-right: 30px;
 }
-
+.my_link:hover{
+  color: red;
+}
